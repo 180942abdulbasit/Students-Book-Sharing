@@ -109,7 +109,6 @@ const UpdateProduct = (props) => {
     if (name === 'author') {
       let matches = []
       matches = existingAuthors.filter((item) => item.includes(author))
-      //setAuthorSuggestions(matches)
     }
   }
 
@@ -258,7 +257,7 @@ const UpdateProduct = (props) => {
     )
 
   return (
-    <Layout className='container-fluid col-md-10 offset-md-1' title={name ? name : ''} description=''>
+    <Layout className='container-fluid col-md-10 offset-md-2' title={name ? name : ''} description=''>
       {showLoading()}
       {showSuccess()}
       {showError()}

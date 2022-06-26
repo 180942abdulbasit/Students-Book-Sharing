@@ -36,7 +36,6 @@ const Search = () => {
   }
   const searchSubmit = (e) => {
     e.preventDefault()
-    //console.log(search, category)
     searchData()
   }
   const handleChange = (name) => (event) => {
@@ -69,16 +68,7 @@ const Search = () => {
     <form onSubmit={searchSubmit}>
       <span className='input-group-text'>
         <div className='input-group input-group-lg'>
-          <div className='input-group-prepend'>
-            {/* <select className='btn mr-2' onChange={handleChange('category')}>
-              <option value='All'>Pick Category</option>
-              {categories.map((c, i) => (
-                <option key={i} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </select> */}
-          </div>
+          <div className='input-group-prepend'></div>
           <input type='search' className='form-control' onChange={handleChange('search')} placeholder='Search by Title, Author or Institute Name' />
         </div>
         <div className='btn input-group-append' style={{ border: 'none' }}>

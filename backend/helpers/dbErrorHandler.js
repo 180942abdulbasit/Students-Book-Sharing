@@ -22,7 +22,6 @@ exports.errorHandler = (error) => {
   let message = ''
 
   if (error.code) {
-    //console.log("11111111111111111111")
     switch (error.code) {
       case 11000:
         message = 'Duplication Error! Value already exists'
@@ -37,9 +36,6 @@ exports.errorHandler = (error) => {
     for (let errorName in error.errors) {
       if (error.errors[errorName].message) message = error.errors[errorName].message
     }
-    //message = error.errors.name
-    //message = error.errors.name.message
-    //console.log('...',JSON.stringify(error.errors.name.message))
   }
 
   return message

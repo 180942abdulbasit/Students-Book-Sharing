@@ -177,6 +177,19 @@ export const deleteUser = (userId, token) => {
     .catch((err) => console.log(err))
 }
 
+export const blockUser = (userId, token) => {
+  return fetch(`${API}/user/block/${userId}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => {
+      return response.json()
+    })
+    .catch((err) => console.log(err))
+}
+
 export const deleteProducts = (userId, token, products) => {
   products.forEach((product) => {
     console.log(product)

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import Layout from './Layout'
 import { getProductsBySubCategory } from './apiCore'
 import Card from './Card'
-import Card2 from './Card2'
 
 const SubCategoryProducts = (props) => {
   const [values, setValues] = useState({
@@ -29,7 +28,7 @@ const SubCategoryProducts = (props) => {
   }, [props])
   return (
     <Layout className='container-fluid' title='Student Book Sharing' description='Home Page to Student Book Sharing'>
-      <h2 className='mb-4'>{props.location.param1}</h2>
+      <h2 className='heading-main'>{props.location.param1}</h2>
       <div className='row'>{products && products.map((p, i) => <Card key={i} product={p} page='Home' />)}</div>
     </Layout>
   )

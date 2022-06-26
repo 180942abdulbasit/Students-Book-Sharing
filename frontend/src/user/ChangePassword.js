@@ -29,9 +29,7 @@ const ChangePassword = () => {
       if (data.error) {
         setValues({ ...values, oldPassword: '', newPassword: '', error: data.error, success: false })
       } else {
-        //updateLocalStorage(data, () => {
         setValues({ ...values, oldPassword: '', newPassword: '', error: '', success: true })
-        //})
       }
     })
   }

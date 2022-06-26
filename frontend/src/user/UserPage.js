@@ -59,7 +59,7 @@ const UserPage = (props) => {
         className='container-fluid col-md-10 offset-md-1'
         title={`${loadedUser.name}`}
         description={`Typically replies in ${loadedUser.avg_reply_time} mins`}>
-        <h2 className='mb-4'>Products from Seller</h2>
+        <h2 className='heading-main'>Products from Seller</h2>
         <div className='row'>
           {userProducts.map((p, i) => (
             <Card key={i} product={p} page='Home' />
@@ -78,7 +78,7 @@ const UserPage = (props) => {
         description={`Typically replies in ${loadedUser.avg_reply_time} mins`}>
         {showError()}
         {showLoading()}
-        <h2 className='mb-4'>Products from Seller</h2>
+        <h2 className='heading-main'>Products from Seller</h2>
         <div className='row'>
           {userProducts.map((p, i) => (
             <Card key={i} product={p} page='Home' />

@@ -23,6 +23,10 @@ import UpdateProduct from './user/UpdateProduct'
 import UserPage from './user/UserPage'
 import CategoryProducts from './core/CategoryProducts'
 import SubCategoryProducts from './core/SubCategoryProducts'
+import Wishlist from './core/Wishlist'
+import ChatPage from './chat/pages/ChatPage.jsx'
+import ReviewForm from './core/ReviewForm'
+import ReviewEdit from './core/ReviewEdit'
 
 const Routes = () => {
   return (
@@ -44,12 +48,18 @@ const Routes = () => {
         <AdminRoute path='/products' exact component={ViewAllProducts} />
         <AdminRoute path='/users' exact component={ViewAllUsers} />
         <AdminRoute path='/create/subCategory' exact component={AddSubCategory} />
+        <PrivateRoute path='/wishlist' exact component={Wishlist} />
         <PrivateRoute path='/create/product' exact component={AddProduct} />
         <PrivateRoute path='/user/dashboard' exact component={UserDashboard} />
         <PrivateRoute path='/userProducts' exact component={UserProducts} />
         <PrivateRoute path='/profile/update' exact component={UpdateProfile} />
         <PrivateRoute path='/profile/changePassword' exact component={ChangePassword} />
         <PrivateRoute path='/product/update/:productId' exact component={UpdateProduct} />
+        <PrivateRoute path='/review-form/:productId' exact component={ReviewForm} />
+        <PrivateRoute path='/review-edit/:productId/:reviewId' exact component={ReviewEdit} />
+
+        <PrivateRoute path='/chat/:sellerId' exact component={ChatPage} />
+        <PrivateRoute path='/chat' exact component={ChatPage} />
       </Switch>
     </BrowserRouter>
   )

@@ -1,5 +1,5 @@
 const { errorHandler } = require('../helpers/dbErrorHandler')
-const SubCategory = require('../models/subCategory')
+const SubCategory = require('../models/subcategory')
 
 exports.subCategoryById = (req, res, next, id) => {
   SubCategory.findById(id)
@@ -14,6 +14,7 @@ exports.subCategoryById = (req, res, next, id) => {
       next()
     })
 }
+
 exports.create = (req, res) => {
   const subCategory = new SubCategory(req.body)
   subCategory.save((error, data) => {

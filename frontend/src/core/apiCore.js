@@ -1,19 +1,8 @@
 import { API } from '../config'
 import queryString from 'query-string'
 
-// export const getProducts = (sortBy) => {
-//   return fetch(`${API}/products?sortBy=${sortBy}&order=desc&limit=6`, {
-//     method: 'GET',
-//   })
-//     .then((response) => {
-//       // console.log('...........',response.json())
-//       return response.json()
-//     })
-//     .catch((err) => console.log(err))
-// }
-
 export const getProducts = (sortBy) => {
-  return fetch(`${API}/products?sortBy=${sortBy}&order=desc&limit=6`, {
+  return fetch(`${API}/products?sortBy=${sortBy}&order=desc`, {
     method: 'GET',
   })
     .then((response) => {
@@ -142,4 +131,108 @@ export const getProductsBySubCategory = (productId) => {
       return response.json()
     })
     .catch((err) => console.log(err))
+}
+
+export const toggleWishlist = (user, productId) => {
+  const data = {
+    user,
+    productId,
+  }
+  return fetch(`${API}/product/wishlist/add`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json()
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
+
+export const toggleReport = (user, productId) => {
+  const data = {
+    user,
+    productId,
+  }
+  return fetch(`${API}/product/report/add`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json()
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
+
+export const checkWishlist = (user, productId) => {
+  const data = {
+    user,
+    productId,
+  }
+  return fetch(`${API}/product/wishlist/check`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json()
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
+export const checkReport = (user, productId) => {
+  const data = {
+    user,
+    productId,
+  }
+  return fetch(`${API}/product/report/check`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json()
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
+
+export const getWishlistProducts = (user) => {
+  // const data = {
+  //   user,
+  // }
+  console.log(user)
+  return fetch(`${API}/wishlist/${user._id}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    //body: JSON.stringify(data),
+  })
+    .then((res) => {
+      return res.json()
+    })
+    .catch((err) => {
+      console.log(err)
+    })
 }

@@ -4,7 +4,9 @@ const fs = require('fs')
 const Product = require('../models/product')
 const { errorHandler } = require('../helpers/dbErrorHandler')
 const user = require('../models/user')
+const Report = require('../models/report')
 const { search } = require('../routes/product')
+const product = require('../models/product')
 
 exports.productById = (req, res, next, id) => {
   Product.findById(id)
@@ -81,45 +83,108 @@ exports.create = (req, res) => {
   })
 }
 
+exports.addWishlist = (req, res) => {
+  user.findById({ _id: req.body.user._id }, (err, user) => {
+    if (err) {
+      res.status(400).json({
+        error: 'User not found',
+      })
+    }
+    var index = user.wishlist.indexOf(req.body.productId)
+    var message = ''
+    if (index === -1) {
+      user.wishlist.push(req.body.productId)
+      message = 'added'
+    } else {
+      user.wishlist.splice(index, 1)
+      message = 'removed'
+    }
+    user.save((error, user) => {
+      if (error) {
+        return res.status(400).json({
+          error: errorHandler(error),
+        })
+      }
+      res.json({
+        message: message,
+      })
+    })
+  })
+}
+
+exports.addReport = (req, res) => {
+  Product.findById({ _id: req.body.productId }, (err, product) => {
+    if (err) {
+      res.status(400).json({
+        error: 'Product not found',
+      })
+    }
+    var message = ''
+    var index = product.reportUsers.indexOf(req.body.user._id)
+    if (index === -1) {
+      product.reportUsers.push(req.body.user._id)
+      message = 'added'
+    } else {
+      product.reportUsers.splice(index, 1)
+      message = 'removed'
+    }
+    product.save((error, product) => {
+      if (error) {
+        return res.status(400).json({
+          error: errorHandler(error),
+        })
+      }
+      res.json({
+        message: message,
+      })
+    })
+  })
+}
+
+exports.checkWishlist = (req, res) => {
+  user.findById({ _id: req.body.user._id }, (err, user) => {
+    if (err) {
+      res.status(400).json({
+        error: 'User not found',
+      })
+    }
+    var index = user.wishlist.indexOf(req.body.productId)
+
+    if (index === -1) {
+      res.json({
+        message: 'no',
+      })
+    } else {
+      res.json({
+        message: 'yes',
+      })
+    }
+  })
+  //
+}
+
+exports.checkReport = (req, res) => {
+  Product.findById({ _id: req.body.productId }, (err, product) => {
+    if (err) {
+      res.status(400).json({
+        error: 'Product not found',
+      })
+    }
+    var index = product.reportUsers.indexOf(req.body.user._id)
+
+    if (index === -1) {
+      res.json({
+        message: 'no',
+      })
+    } else {
+      res.json({
+        message: 'yes',
+      })
+    }
+  })
+}
+
 exports.update = (req, res) => {
-  //console.log(req.product)
-  //similar to create method except that we receive the existing product from req body and then updates it
-  // let form = new formidable.IncomingForm()
-  // form.keepExtensions = true
-  // form.parse(req, (error, fields, files) => {
-  //   if (error) {
-  //     return res.status(400).json({
-  //       error: 'Image upload error',
-  //     })
-  //   }
-  //   const { name, description, price, category, quantity, shipping } = fields
-  //   if (!name || !description || !price || !category || !quantity || !shipping) {
-  //     return res.status(400).json({
-  //       error: 'All fields are required',
-  //     })
-  //   }
-  //   let product = req.product
-  //   product = _.extend(product, fields)
-  //   if (files.photo) {
-  //     if (files.photo.size > 1000000) {
-  //       //1 mb
-  //       return res.status(400).json({
-  //         error: 'Image should be less than 1MB',
-  //       })
-  //     }
-  //     product.photo.data = fs.readFileSync(files.photo.filepath)
-  //     product.photo.contentType = files.photo.mimetype
-  //   }
-  //   product.save((error, result) => {
-  //     if (error) {
-  //       return res.status(400).json({
-  //         error: errorHandler(error),
-  //       })
-  //     }
-  //     res.json(result)
-  //   })
-  // })
-  ////
   let form = new formidable.IncomingForm()
   form.keepExtensions = true
   form.parse(req, (error, fields, files) => {
@@ -161,16 +226,7 @@ exports.update = (req, res) => {
       newProduct.photo.data = fs.readFileSync(files.photo.filepath)
       newProduct.photo.contentType = files.photo.mimetype
     }
-    // Product.findByIdAndUpdate(req.product._id, product, (err, result) => {
-    //   console.log('here')
-    //   if (err) {
-    //     return res.status(400).json({
-    //       error: errorHandler(err),
-    //       code: err.code,
-    //     })
-    //   }
-    //   res.json(result)
-    // })
+
     Product.findOne({ _id: req.product._id }, (err, product) => {
       if (err) {
         return res.status(400).json({
@@ -313,48 +369,7 @@ exports.listCategories = (req, res) => {
   })
 }
 
-// exports.listBySearch = (req, res) => {
-//   let order = req.body.order ? req.body.order : 'desc'
-//   let sortBy = req.body.sortBy ? req.body.sortBy : '_id'
-//   let limit = req.body.limit ? parseInt(req.body.limit) : 100
-//   let skip = parseInt(req.body.skip) || 0
-//   let findArgs = { status: 1 }
-
-//   for (let key in req.body.filters) {
-//     if (req.body.filters[key].length > 0) {
-//       if (key === 'price') {
-//         // gte -  greater than price [0-10]
-//         // lte - less than
-//         findArgs[key] = {
-//           $gte: req.body.filters[key][0],
-//           $lte: req.body.filters[key][1],
-//         }
-//       } else {
-//         findArgs[key] = req.body.filters[key]
-//       }
-//     }
-//   }
-//   Product.find(findArgs)
-//     .select('-photo')
-//     .populate('category')
-//     .sort([[sortBy, order]])
-//     .skip(skip)
-//     .limit(limit)
-//     .exec((err, data) => {
-//       if (err) {
-//         return res.status(400).json({
-//           error: 'Products not found',
-//         })
-//       }
-//       res.json({
-//         size: data.length,
-//         data,
-//       })
-//     })
-// }
-
 exports.listBySearch = (req, res) => {
-  //console.log(req.body)
   var arr1 = []
   var arr2 = []
   let order = req.body.order ? req.body.order : 'desc'
@@ -379,7 +394,6 @@ exports.listBySearch = (req, res) => {
   }
 
   const query = {}
-  // console.log('her3', req.body)
   if (req.body.search) {
     query.name = { $regex: req.body.search, $options: 'i' } //i means case insensitive
     query.authors = { $regex: req.body.search, $options: 'i' }
@@ -400,7 +414,6 @@ exports.listBySearch = (req, res) => {
       Product.find(
         {
           $or: query.name ? [{ name: query.name }, { authors: query.authors }, { institutes: query.institutes }] : [{}],
-          // $and: [{ status: 1 }],
         },
         (err, products) => {
           if (err) {
@@ -408,43 +421,12 @@ exports.listBySearch = (req, res) => {
               error: errorHandler(err),
             })
           }
-          //res.json(products)
-          //console.log('filters', data[0])
-          //console.log('search', products[0])
-
           res.json(data.filter((a) => products.some((b) => a.name === b.name)))
-
-          //arr2 = products
-          //$setI
         }
       )
         .select('-photo')
         .populate('category')
-      //console.log('filters', data.length)
-      // res.json({
-      //   size: data.length,
-      //   data,
-      //})
-      //arr1 = data
     })
-
-  // Product.find(
-  //   {
-  //     $or: query.name ? [{ name: query.name }, { authors: query.authors }, { institutes: query.institutes }] : [{}],
-  //     // $and: [{ status: 1 }],
-  //   },
-  //   (err, products) => {
-  //     if (err) {
-  //       return res.status(400).json({
-  //         error: errorHandler(err),
-  //       })
-  //     }
-  //     //res.json(products)
-  //     console.log('search', products.length)
-  //     arr2 = products
-  //   }
-  // ).select('-photo')
-  // console.log(arr1, arr2)
 }
 
 exports.photo = (req, res, next) => {
@@ -456,45 +438,6 @@ exports.photo = (req, res, next) => {
   }
   next()
 }
-
-// exports.listSearch = (req, res) => {
-//   const query = {}
-
-//   // const search = req.query.search ? req.query.search : ''
-//   // query.name = { $regex: search, $options: 'i' } //i means case insensitive
-//   // query.authors = { $regex: search, $options: 'i' }
-//   // query.institutes = { $regex: search, $options: 'i' }
-//   if (req.query.search) {
-//     query.name = { $regex: req.query.search, $options: 'i' } //i means case insensitive
-//     query.authors = { $regex: req.query.search, $options: 'i' }
-//     query.institutes = { $regex: req.query.search, $options: 'i' }
-//   }
-
-//   if (req.query.category != 'All' || req.query.category != undefined) {
-//     query.category = req.query.category
-//   } else {
-//     query.category = ''
-//   }
-//   //console.log(req.query.search, req.query.category, query)
-//   Product.find(
-//     {
-//       $or: [{ name: query.name }, { authors: query.authors }, { institutes: query.institutes }],
-//       $and: query.category ? [{ category: query.category }] : [{}],
-//     },
-//     // {
-//     //   $or: [{ name: query.name }, { authors: query.authors }, { institutes: query.institutes }],
-//     //   $and: [{ category: query.category }, { status: 1 }],
-//     // },
-//     (err, products) => {
-//       if (err) {
-//         return res.status(400).json({
-//           error: errorHandler(err),
-//         })
-//       }
-//       res.json(products)
-//     }
-//   ).select('-photo')
-// }
 
 exports.listSearch = (req, res) => {
   const query = {}
@@ -512,6 +455,7 @@ exports.listSearch = (req, res) => {
     {
       $or: query.name ? [{ name: query.name }, { authors: query.authors }, { institutes: query.institutes }] : [{}],
       $and: query.category ? [{ category: query.category }, { status: 1 }] : [{ status: 1 }],
+      $and: query.subCategory ? [{ subCategory: query.subCategory }, { status: 1 }] : [{ status: 1 }],
     },
     (err, products) => {
       if (err) {
@@ -589,4 +533,30 @@ exports.listProductsBySubCategory = (req, res) => {
       }
       res.json(data)
     })
+}
+
+exports.wishlistProducts = (req, res) => {
+  console.log(req.params.userId)
+  var arr = []
+  user.findById({ _id: req.params.userId }, (err, user) => {
+    if (err) {
+      res.status(400).json({
+        error: 'User not found',
+      })
+    }
+    arr = user.wishlist
+    console.log(arr)
+    //res.json({ arr })
+    Product.find({ _id: { $in: arr }, status: 1 })
+      .populate('category')
+      .exec((err, data) => {
+        console.log(data.length)
+        if (err) {
+          return res.status(400).json({
+            error: errorHandler(err),
+          })
+        }
+        res.json(data)
+      })
+  })
 }

@@ -5,8 +5,8 @@ import { signin, authenticate, isAuthenticated } from '../auth'
 
 const Signin = () => {
   const [values, setValues] = useState({
-    email: 'basit@gmail.com',
-    password: 'basit123',
+    email: 'admin@gmail.com',
+    password: 'Admin123',
     // email: '',
     // password: '',
     error: '',
@@ -53,7 +53,7 @@ const Signin = () => {
         <input onChange={handleChange('password')} type='password' className='form-control' value={password} required />
       </div>
       <button onClick={clickSubmit} className='btn btn-primary'>
-        Submit
+        Sign In
       </button>
     </form>
   )
@@ -80,11 +80,8 @@ const Signin = () => {
       if (user && user.role === 1) {
         return <Redirect to='/admin/dashboard' />
       }
-      // else {
-      //   return <Redirect to='/user/dashboard' />
-      // }
       if (user && user.role === 0) {
-        return <Redirect to='/user/dashboard' />
+        return <Redirect to='/' />
       }
     }
     if (isAuthenticated()) {

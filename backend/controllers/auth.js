@@ -3,20 +3,24 @@ const jwt = require('jsonwebtoken')
 const expressJwt = require('express-jwt')
 const { errorHandler } = require('../helpers/dbErrorHandler')
 
-exports.signup = (req, res) => {
-  const user = new User(req.body)
-  user.save((error, user) => {
-    if (error) {
-      return res.status(400).json({
-        error: errorHandler(error),
+exports.signup = async (req, res) => {
+  try {
+    const user = new User(req.body)
+    await user.save((error, user) => {
+      if (error) {
+        return res.status(400).json({
+          error: errorHandler(error),
+        })
+      }
+      user.salt = undefined ///to hide it in response message
+      user.hashed_password = undefined
+      res.json({
+        user,
       })
-    }
-    user.salt = undefined ///to hide it in response message
-    user.hashed_password = undefined
-    res.json({
-      user,
     })
-  })
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 exports.signin = (req, res) => {
@@ -35,8 +39,8 @@ exports.signin = (req, res) => {
     //
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET)
     res.cookie('t', token, { expire: new Date() + 9999 })
-    const { _id, name, email, role } = user
-    return res.json({ token, user: { _id, email, name, role } })
+    const { _id, name, email, role, status } = user
+    return res.json({ token, user: { _id, email, name, role, status } })
   })
 }
 

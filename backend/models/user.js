@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    history: {
+    wishlist: {
       type: Array,
       default: [],
     },
@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
     avg_reply_time: {
       type: Number,
       default: 0,
+    },
+    status: {
+      type: Number,
+      default: 1,
     },
   },
   { timestamps: true }

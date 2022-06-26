@@ -15,33 +15,43 @@ const mouseOver = (size) => (e) => {
     e.target.style.transition = '0.3s'
   }
 }
-const ShowImage = ({ item, url, size = 'sm' }) => (
-  <div className='product-img'>
-    <img
-      onMouseOver={mouseOver(size)}
-      onMouseOut={mouseOut(size)}
-      src={`${API}/${url}/photo/${item._id}`}
-      alt={item.name}
-      className='mx-auto'
-      style={{
-        // maxHeight: '100%',
-        // maxWidth: '100%',
-        //minHeight: '100%',
-        //minWidth: '60%',
-        borderTopRightRadius: size == 'sm' ? '15px' : '',
-        borderTopLeftRadius: size == 'sm' ? '15px' : '',
-        minWidth: size == 'lg' ? '80%' : '',
-        maxWidth: size == 'sm' ? '100%' : '',
-        //minWidth: size == 'sm' ? '100%' : '',
-        //maxHeight: size == 'sm' ? '100%' : '',
-        //minHeight: size == 'sm' ? '100%' : '',
-        border: size == 'lg' ? '3px solid #ddd' : '',
-        padding: size == 'lg' ? '0px' : '',
-        zIndex: size == 'lg' ? '3' : '',
-        minHeight: size == 'lg' ? '100%' : '',
-      }}
-    />
-  </div>
-)
+const ShowImage = ({ item, url, size = 'sm' }) => {
+  if (size === 'home')
+    return (
+      <img
+        onMouseOver={mouseOver(size)}
+        onMouseOut={mouseOut(size)}
+        src={`${API}/${url}/photo/${item._id}`}
+        alt={item.name}
+        className='mx-auto product-image-thumbnail'
+        style={{
+          maxWidth: size == 'sm' ? '100%' : '',
+          minHeight: size == 'home' ? '100%' : '',
+          minWidth: size == 'home' ? '100%' : '',
+        }}
+      />
+    )
+  else
+    return (
+      <div className='product-img'>
+        <img
+          src={`${API}/${url}/photo/${item._id}`}
+          alt={item.name}
+          className='mx-auto'
+          style={{
+            borderTopRightRadius: size == 'sm' ? '15px' : '',
+            borderTopLeftRadius: size == 'sm' ? '15px' : '',
+            minWidth: size == 'lg' ? '80%' : '',
+            maxWidth: size == 'sm' ? '100%' : '',
+            maxHeight: size == 'lg' ? '100%' : '',
+            border: size == 'lg' ? '0px solid #ddd' : '',
+            padding: size == 'lg' ? '0px' : '',
+            zIndex: size == 'lg' ? '3' : '',
+            minHeight: size == 'lg' ? '100%' : '',
+          }}
+        />
+      </div>
+    )
+}
 
 export default ShowImage

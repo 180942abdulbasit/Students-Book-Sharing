@@ -16,8 +16,6 @@ exports.userById = (req, res, next, id) => {
     req.profile.reply_time = undefined
     req.profile.hashed_password = undefined
     req.profile.salt = undefined
-    //console.log(req.profile)
-
     next()
   })
 }
@@ -57,6 +55,7 @@ exports.listAllUsers = (req, res) => {
     .select('name')
     .select('email')
     .select('role')
+    .select('status')
     .lean()
     .exec((err, users) => {
       if (err) {
@@ -97,6 +96,40 @@ exports.deleteUser = (req, res) => {
         error: errorHandler(err),
       })
     }
+  })
+}
+
+exports.blockUser = (req, res) => {
+  //
+  let userStatus
+  let u
+  User.findOne({ _id: req.params.userId }, (err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: 'User not exists.',
+      })
+    }
+    userStatus = user.status
+    if (userStatus == 1) {
+      user.status = 0
+      userStatus = 0
+    } else {
+      user.status = 1
+      userStatus = 1
+    }
+    user.save((error, user) => {
+      if (error) {
+        return res.status(400).json({
+          error: errorHandler(error),
+        })
+      }
+      Product.updateMany({ createdBy: req.params.userId }, { status: userStatus }, (err, p) => {
+        if (err) {
+          return res.status(400).json({ error: errorHandler(err) })
+        }
+      })
+      res.json(user)
+    })
   })
 }
 

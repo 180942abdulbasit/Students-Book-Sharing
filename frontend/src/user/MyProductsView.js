@@ -69,7 +69,7 @@ const MyProductsView = (props) => {
 
   const showCards = () => (
     <div>
-      <h2 className='mb-4'>My Products</h2>
+      <h2 className='heading-main'>My Products</h2>
       <div className='row'>
         {userProucts.map((p, i) => (
           <Card key={i} product={p} page='MyProductsView' />
@@ -79,11 +79,7 @@ const MyProductsView = (props) => {
   )
 
   return (
-    <Layout
-      title={`${name}`}
-      description=''
-      // className='container col-md-8 offset-md-2'
-      className='container'>
+    <Layout title={`${name}`} description='' className='container'>
       {showError()}
       {showLoading()}
       {showCards()}

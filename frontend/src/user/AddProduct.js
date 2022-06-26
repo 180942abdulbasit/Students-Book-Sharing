@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 import Layout from '../core/Layout'
 import '../styles.css'
-import { isAuthenticated } from '../auth'
+import { isAdmin, isAuthenticated } from '../auth'
 import { createProduct, getCategories, getSubCategories, getInstitutes, getAuthors } from '../admin/apiAdmin'
 import BackToDashboard from './BackToDashboard'
+import { Redirect } from 'react-router-dom'
 
 const AddProduct = () => {
   const { user, token } = isAuthenticated()
@@ -77,25 +78,6 @@ const AddProduct = () => {
     init()
   }, [])
 
-  // const handleChange = (name) => (event) => {
-  //   //first it will grab the name then event... it is a function in a function
-  //   const value = name === 'photo' ? event.target.files[0] : event.target.value
-  //   formData.set(name, value)
-  //   setValues({ ...values, error: '', createdProduct: '', [name]: value })
-  //   if (name === 'category') {
-  //     //selectedCategory = event.target.selectedOptions[0].getAttribute('var1')
-  //     //setValues({ ...values, selectedCategory: event.target.selectedOptions[0].getAttribute('var1') })
-  //     console.log(name)
-
-  //     loadSubCategories(event.target.value)
-  //   }
-  //   if (name === 'author') {
-  //     let matches = []
-  //     matches = existingAuthors.filter((item) => item.includes(author))
-  //     setAuthorSuggestions(matches)
-  //   }
-  // }
-
   const handleChange = (name) => (event) => {
     //first it will grab the name then event... it is a function in a function
     const value = name === 'photo' ? event.target.files[0] : event.target.value
@@ -104,7 +86,6 @@ const AddProduct = () => {
     if (name === 'category') {
       setValues({ ...values, error: '', createdProduct: '', [name]: value })
       loadSubCategories(event.target.value)
-      //myFunc(event.target.selectedOptions[0].getAttribute('var1'))
     } else if (name === 'author') {
       let matches = []
       matches = existingAuthors.filter((item) => item.includes(author))
@@ -142,6 +123,7 @@ const AddProduct = () => {
           institute: '',
           institutes: [],
           authors: [],
+          redirectToProfile: true,
         })
       }
     })
@@ -258,6 +240,17 @@ const AddProduct = () => {
       </div>
     )
 
+  const redirectToDashboard = () => {
+    if (redirectToProfile) {
+      if (isAdmin()) {
+        return <Redirect to='/admin/dashboard' />
+      }
+      if (!isAdmin()) {
+        return <Redirect to='/user/dashboard' />
+      }
+    }
+  }
+
   return (
     <Layout title='Add a new Product' description={`Hello ${user.name}!`} className='container-fluid'>
       <div className='row'>
@@ -267,6 +260,7 @@ const AddProduct = () => {
           {showError()}
           {newPostForm()}
           {BackToDashboard()}
+          {redirectToDashboard()}
         </div>
       </div>
     </Layout>

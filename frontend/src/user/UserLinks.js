@@ -18,16 +18,14 @@ const UserLinks = () => {
             Change Password
           </Link>
         </li>
-        <li className='list-group-item'>
-          <Link className='nav-link' to='/create/product'>
-            Add Product
-          </Link>
-        </li>
-        <li className='list-group-item'>
-          <Link className='nav-link' to='/cart'>
-            My Purchase History
-          </Link>
-        </li>
+        {user.status === 1 && (
+          <li className='list-group-item'>
+            <Link className='nav-link' to='/create/product'>
+              Add Product
+            </Link>
+          </li>
+        )}
+
         <li className='list-group-item'>
           <Link className='nav-link' to='/userProducts'>
             My Products

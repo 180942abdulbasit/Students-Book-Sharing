@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Layout from './Layout'
 import Card from './Card'
-import Card2 from './Card2'
 import { getCategories, getSubCategories, getFilteredProducts, getFilteredProducts1 } from './apiCore'
 //import { getSubCategories } from '../admin/apiAdmin'
 import Checkbox from './Checkbox'
@@ -11,9 +10,11 @@ const Shop = (props) => {
   const [myFilters, setMyFilters] = useState({
     filters: {
       category: [],
+      subCategory: [],
       price: [],
     },
   })
+  const items = 8
   const [categories, setCategories] = useState([])
   const [error, setError] = useState(false)
   const [limit, setLimit] = useState(18)
@@ -21,10 +22,13 @@ const Shop = (props) => {
   const [size, setSize] = useState(0)
   const [filteredResults, setFilteredResults] = useState([])
   const [subCategories, setSubCategories] = useState([])
+  const [productsToDisplay, setProductsToDisplay] = useState(items)
 
   const [priceRangeFinal, setPriceRangeFinal] = useState([0, 5000])
   const [priceRangeInitial, setPriceRangeInitial] = useState(priceRangeFinal)
 
+  const [selectedCategories, setSelectedCategories] = useState([])
+  const [allSubcategories, setAllSubcategories] = useState([])
   const init = () => {
     getCategories().then((data1) => {
       if (data1.error) {
@@ -35,7 +39,7 @@ const Shop = (props) => {
             setError(data2.error)
           } else {
             setCategories(data1)
-            setSubCategories(data2)
+            setAllSubcategories(data2)
           }
         })
       }
@@ -48,29 +52,15 @@ const Shop = (props) => {
   }, [props])
 
   const handleFilters = (filters, filterBy) => {
+    console.log(filters, filterBy)
     const newFilters = { ...myFilters }
     newFilters.filters[filterBy] = filters
-    loadFilteredResults(myFilters.filters)
     setMyFilters(newFilters)
-    // if (filterBy === 'category') {
-    //   //console.log(filters)
-    //   loadSubCategories(filters)
-    // }
-    //newFilters.filters['search'] = props.match.params.search
+    loadFilteredResults(myFilters.filters)
   }
 
   const loadFilteredResults = (newFilters) => {
-    // getFilteredProducts(skip, limit, newFilters).then((data) => {
-    //   if (data.error) {
-    //     setError(data.error)
-    //   } else {
-    //     setFilteredResults(data.data)
-    //     setSize(data.size)
-    //     setSkip(0)
-    //   }
-    // })
     getFilteredProducts1(skip, limit, props.match.params.search, newFilters).then((data) => {
-      //console.log(newFilters)
       if (data.error) {
         setError(data.error)
       } else {
@@ -82,29 +72,19 @@ const Shop = (props) => {
   }
 
   const loadMore = () => {
-    let toSkip = skip + limit
-    getFilteredProducts(toSkip, limit, myFilters.filters).then((data) => {
-      if (data.error) {
-        setError(data.error)
-      } else {
-        setFilteredResults([...filteredResults, ...data.data])
-        setSize(data.size)
-        setSkip(toSkip)
-      }
-    })
+    setProductsToDisplay(productsToDisplay + items)
   }
 
   const loadMoreButton = () => {
-    return (
-      size > 0 &&
-      size >= limit && (
-        <div className='container'>
-          <button onClick={loadMore} className='btn btn-warning mb-5'>
+    if (filteredResults.length > productsToDisplay) {
+      return (
+        <div className='container mt-5'>
+          <button onClick={loadMore} className='btn btn-danger mb-5'>
             Load More
           </button>
         </div>
       )
-    )
+    }
   }
   const rangeSelector = (event, newValue) => {
     setPriceRangeInitial(newValue)
@@ -128,17 +108,77 @@ const Shop = (props) => {
     })
   }
 
+  const handleChange = () => (e) => {
+    var arr = filteredResults
+    if (e.target.value === 'des') {
+      arr.sort((a, b) => parseFloat(b.price) - parseFloat(a.price))
+      setFilteredResults([...arr])
+      console.log(filteredResults)
+    }
+    if (e.target.value === 'asc') {
+      arr.sort((a, b) => parseFloat(a.price) - parseFloat(b.price))
+      setFilteredResults([...arr])
+      console.log(filteredResults)
+    }
+    if (e.target.value === 'old') {
+      arr.sort((a, b) => {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      })
+      setFilteredResults([...arr])
+    }
+    if (e.target.value === 'new') {
+      arr
+        .sort((a, b) => {
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        })
+        .reverse()
+      setFilteredResults([...arr])
+    }
+  }
+
+  const categoryChanged = (c) => {
+    let selectedCategoriesVariable = []
+    const exists = selectedCategories.indexOf(c)
+    if (exists === -1) {
+      selectedCategoriesVariable = [...selectedCategories, c]
+    } else {
+      selectedCategoriesVariable = selectedCategories.filter((category) => category !== c)
+    }
+
+    setSelectedCategories(selectedCategoriesVariable)
+
+    console.log('first', selectedCategoriesVariable)
+    setSubCategories((state) => {
+      return allSubcategories.filter((subcategory) => {
+        const subExists = selectedCategoriesVariable.indexOf(subcategory.category._id)
+        if (subExists !== -1) {
+          return subcategory
+        }
+      })
+    })
+    console.log('c: ', c)
+    console.log('selected-categories: ', selectedCategories)
+    console.log('sub-categories: ', allSubcategories)
+    console.log('filters: ', myFilters)
+  }
+
   return (
     <Layout className='container-fluid' title='Shop Page' description='Find Books of your Choice'>
-      <div className='row'>
-        <div className='col-2'>
-          <h5>Filter by Categories</h5>
+      <div className='row container-fluid' style={{ backgroundColor: '' }}>
+        <div className='col-lg-3 col-sm-4 col-md-3' style={{ backgroundColor: 'rgb(245, 245, 245)' }}>
+          <h5 className='mt-4'>Filter by Categories</h5>
           <ul>
-            <Checkbox categories={categories} handleFilters={(filters) => handleFilters(filters, 'category')} style={{ backgroundColor: 'red' }} />
+            <Checkbox
+              onCategoryChange={categoryChanged}
+              name='Categories'
+              categories={categories}
+              handleFilters={(filters) => handleFilters(filters, 'category')}
+              style={{ backgroundColor: 'red' }}
+            />
           </ul>
-          <h5>Filter by SubCategories</h5>
+          <h5>Filter by Sub Categories</h5>
           <ul>
-            <Checkbox categories={subCategories} handleFilters={(filters) => handleFilters(filters, 'subCategory')} />
+            <Checkbox name='Sub Categories' categories={subCategories} handleFilters={(filters) => handleFilters(filters, 'subCategory')} />
           </ul>
           <h5>Filter by Price Range</h5>
           <ul>
@@ -157,13 +197,38 @@ const Shop = (props) => {
           </ul>
         </div>
 
-        <div className='col-10'>
-          <h2 className='mb-4'>Found {filteredResults && filteredResults.length} products</h2>
-          <div className='row'>{filteredResults && filteredResults.map((p, i) => <Card key={i} product={p} page='Shop' />)}</div>
+        <div className='col-lg-9 col-sm-8 col-md-9'>
+          <div className='row'>
+            <div className='col-8'>
+              <h2 className='heading-main'>Found {filteredResults && filteredResults.length} products</h2>
+            </div>
+            <div className='col-3' style={{ alignItems: 'right' }}>
+              <select name='select' onChange={handleChange()} className='form-control'>
+                <option key='1' value='new' var1=''>
+                  Newest First
+                </option>
+                <option key='2' value='old' var1=''>
+                  Oldest First
+                </option>
+                <option key='2' value='des' var1=''>
+                  Price High to Low
+                </option>
+                <option key='4' value='asc' var1=''>
+                  Price Low to High
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div className='row'>
+            {filteredResults && filteredResults.slice(0, productsToDisplay).map((p, i) => <Card key={i} product={p} page='Shop' size='home' />)}
+          </div>
           <div className='text-center'>{loadMoreButton()}</div>
         </div>
       </div>
     </Layout>
+
+    //////
   )
 }
 

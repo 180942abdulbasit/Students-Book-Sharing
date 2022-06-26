@@ -11,6 +11,10 @@ const userRoutes = require('./routes/user')
 const categoryRoutes = require('./routes/category')
 const subCategoryRoutes = require('./routes/subcategory')
 const productRoutes = require('./routes/product')
+const roomRoutes = require('./routes/room')
+const reviewRoutes = require('./routes/review')
+
+const { createMessageFromSocket } = require('./controllers/message')
 const cors = require('cors')
 
 //middlewares
@@ -26,19 +30,44 @@ app.use('/api', userRoutes)
 app.use('/api', categoryRoutes)
 app.use('/api', productRoutes)
 app.use('/api', subCategoryRoutes)
+app.use('/api/rooms', roomRoutes)
+app.use('/api/reviews', reviewRoutes)
 
 //routes
-const port = process.env.PORT || 8000 //accessing PORT variable from .env file
+//const port = process.env.PORT || 8001 //accessing PORT variable from .env file
 
-mongoose
-  .connect(process.env.DATABASE, { useNewUrlParser: true })
-  .then(() => console.log('DB Connected'))
+mongoose.connect(process.env.DATABASE, { useNewUrlParser: true }).then(() => console.log('DB Connected'))
 
 mongoose.connection.on('error', (err) => {
   console.log(`DB connection error: ${err.message}`)
 })
 
-//server.timeout = 0;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`)
+const server = require('http').createServer(app)
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  },
+})
+
+io.on('connection', function (socket) {
+  console.log('a user connected')
+  socket.on('disconnect', function () {
+    console.log('User Disconnected')
+  })
+
+  //catch new message event
+  socket.on('inputMessage', async function (data) {
+    const newMessage = await createMessageFromSocket(data)
+    io.emit('outputMessage', newMessage)
+  })
+})
+
+io.listen(8002)
+
+app.listen(5001, '0.0.0.0', (err) => {
+  if (err) {
+    console.log(err)
+  }
+
+  console.info('>>> 🌎 Open http://0.0.0.0:%s/ in your browser.', 5000)
 })

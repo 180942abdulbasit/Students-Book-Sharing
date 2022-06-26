@@ -71,7 +71,7 @@ const AddSubCategory = () => {
         </select>{' '}
       </div>
       <button type='submit' className='btn btn-primary' onClick={clickSubmit}>
-        Create Category
+        Create Sub Category
       </button>
     </form>
   )
